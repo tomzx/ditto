@@ -79,18 +79,26 @@ class Ditto
 		$this->object->$key = $value;
 	}
 
+	protected function decapsulate($object)
+	{
+		if ($object instanceof self) {
+			return $this->decapsulate($this->object);
+		}
+		return $object;
+	}
+
 	protected function assertSame($arguments)
 	{
-		\PHPUnit_Framework_Assert::assertSame($arguments[0], $this->object);
+		\PHPUnit_Framework_Assert::assertSame($this->decapsulate($arguments[0]), $this->object);
 	}
 
 	protected function assertEquals($arguments)
 	{
-		\PHPUnit_Framework_Assert::assertEquals($arguments[0], $this->object);
+		\PHPUnit_Framework_Assert::assertEquals($this->decapsulate($arguments[0]), $this->object);
 	}
 
 	protected function assertInstanceOf($arguments)
 	{
-		\PHPUnit_Framework_Assert::assertInstanceOf($arguments[0], $this->object);
+		\PHPUnit_Framework_Assert::assertInstanceOf($this->decapsulate($arguments[0]), $this->object);
 	}
 }

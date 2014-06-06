@@ -20,4 +20,9 @@ class A
 	{
 		return true;
 	}
+
+	public function getThis()
+	{
+		return $this;
+	}
 }
