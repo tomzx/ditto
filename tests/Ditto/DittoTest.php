@@ -8,12 +8,12 @@ class DittoTest extends \PHPUnit_Framework_TestCase {
 		$this->assertInstanceOf('Ditto\Ditto', d::make('stdClass'));
 	}
 
-	public function testItCanInstanciateArgumentlessClasses()
+	public function testItCanInstantiateArgumentlessClasses()
 	{
 		$this->assertInstanceOf('Ditto\Ditto', d::make('Ditto\Fixtures\Classes\A'));
 	}
 
-	public function testItCanInstanciateClassesWithArguments()
+	public function testItCanInstantiateClassesWithArguments()
 	{
 		$ditto = d::make('Ditto\Fixtures\Classes\C');
 		$this->assertInstanceOf('Ditto\Ditto', $ditto);
