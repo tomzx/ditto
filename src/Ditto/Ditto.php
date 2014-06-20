@@ -38,6 +38,11 @@ class Ditto
 		return new self($instance);
 	}
 
+	public function getObject()
+	{
+		return $this->object;
+	}
+
 	protected static function initializeContainer()
 	{
 		if (self::$container === null) {
@@ -82,23 +87,23 @@ class Ditto
 	protected function decapsulate($object)
 	{
 		if ($object instanceof self) {
-			return $this->decapsulate($this->object);
+			return $this->decapsulate($object->object);
 		}
 		return $object;
 	}
 
 	protected function assertSame($arguments)
 	{
-		\PHPUnit_Framework_Assert::assertSame($this->decapsulate($arguments[0]), $this->object);
+		\PHPUnit_Framework_Assert::assertSame($this->decapsulate($arguments[0]), $this->decapsulate($this->object));
 	}
 
 	protected function assertEquals($arguments)
 	{
-		\PHPUnit_Framework_Assert::assertEquals($this->decapsulate($arguments[0]), $this->object);
+		\PHPUnit_Framework_Assert::assertEquals($this->decapsulate($arguments[0]), $this->decapsulate($this->object));
 	}
 
 	protected function assertInstanceOf($arguments)
 	{
-		\PHPUnit_Framework_Assert::assertInstanceOf($this->decapsulate($arguments[0]), $this->object);
+		\PHPUnit_Framework_Assert::assertInstanceOf($this->decapsulate($arguments[0]), $this->decapsulate($this->object));
 	}
 }

@@ -74,7 +74,15 @@ class DittoTest extends \PHPUnit_Framework_TestCase {
 
 	public function testItShouldDecapsulateArgumentsIfTheyAreDittoObjects()
 	{
-		$ditto = d::make('Ditto\Fixtures\Classes\A');
-		$ditto->getThis()->shouldReturn($ditto);
+		$a = new \Ditto\Fixtures\Classes\A();
+		$ditto_a = d::make($a);
+		$ditto_b = d::make($ditto_a);
+
+		$this->assertInstanceOf('Ditto\Ditto', $ditto_a);
+		$this->assertInstanceOf('Ditto\Ditto', $ditto_b);
+		$this->assertSame($a, $ditto_a->getObject());
+		$this->assertSame($ditto_a, $ditto_b->getObject());
+		$ditto_a->getThis()->shouldReturn($a);
+		$ditto_b->getThis()->shouldReturn($a);
 	}
 }
