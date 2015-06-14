@@ -1,4 +1,4 @@
-<?php namespace Ditto\Fixtures\Classes;
+<?php namespace Ditto\Test\Fixtures\Classes;
 
 class C
 {

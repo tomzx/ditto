@@ -1,15 +1,20 @@
 {
 	"name": "tomzx/ditto",
-	"type": "library",
 	"description": "Specification-oriented BDD helpers for PHPUnit",
+	"type": "library",
 	"keywords": ["ditto", "bdd", "test"],
+	"homepage": "https://github.com/tomzx/ditto",
 	"license": "MIT",
 	"authors": [
 		{
 			"name": "Tom Rochette",
-			"email": "roctom@gmail.com"
+			"email": "tom@tomrochette.com",
+			"homepage": "http://www.tomrochette.com"
 		}
 	],
+	"support": {
+		"issues": "https://github.com/tomzx/ditto/issues"
+	},
 	"require": {
 		"php": ">=5.4",
 		"illuminate/container": "~4.2"
@@ -18,8 +23,18 @@
 		"phpunit/phpunit": "~4.1"
 	},
 	"autoload": {
-		"psr-0": {
-			"Ditto": "src/"
+		"psr-4": {
+			"Ditto\\": "src/Ditto"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Ditto\\Test\\": "tests/Ditto"
+		}
+	},
+	"extra": {
+		"branch-alias": {
+			"dev-master": "0.2-dev"
 		}
 	}
 }
