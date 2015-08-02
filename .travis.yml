@@ -16,7 +16,8 @@ before_script:
     - composer update
 
 script:
-    - php -dxdebug.enable=1 vendor/bin/phpunit
+    - if [[ $TRAVIS_PHP_VERSION =~ ^hhvm ]]; then echo 'xdebug.enable = On' >> /etc/hhvm/php.ini; fi
+    - php vendor/bin/phpunit
 
 after_script:
     - wget https://scrutinizer-ci.com/ocular.phar
