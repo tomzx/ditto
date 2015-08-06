@@ -17,7 +17,11 @@ Ditto is a simple wrapper around PHPUnit assertions which allows developers to u
 ```php
 use Ditto\Ditto as d;
 
+// Before PHP 5.5
 $ditto = d::make('SomeClass');
+// As of PHP 5.5
+$ditto = d::make(SomeClass::class);
+
 $ditto->someMethod()->shouldReturn('some value');
 
 // ===
