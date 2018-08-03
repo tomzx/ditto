@@ -1,13 +1,34 @@
 <?php namespace Ditto;
 
 use Illuminate\Container\Container;
+use PHPUnit\Framework\Assert;
 
+/**
+ * @method void shouldReturn(mixed $expected)
+ * @method void shouldBe(mixed $expected)
+ * @method void shouldEqual(mixed $expected)
+ * @method void shouldBeEqualTo(mixed $expected)
+ * @method void shouldBeLike(mixed $expected)
+ * @method void shouldHaveType(mixed $expected)
+ * @method void shouldReturnAnInstanceOf(mixed $expected)
+ * @method void shouldBeAnInstance(mixed $expected)
+ * @method void shouldImplement(mixed $expected)
+ */
 class Ditto
 {
-	protected $object;
-
+	/**
+	 * \Illuminate\Container\Container
+	 */
 	protected static $container;
 
+	/**
+	 * @var mixed
+	 */
+	protected $object;
+
+	/**
+	 * @var array
+	 */
 	protected $test_keywords = [
 		'shouldReturn' => 'assertSame',
 		'shouldBe' => 'assertSame',
@@ -20,41 +41,67 @@ class Ditto
 		'shouldImplement' => 'assertInstanceOf',
 	];
 
-	private function __construct($object)
+	/**
+	 * @param mixed $object
+	 */
+	protected function __construct($object)
 	{
 		$this->object = $object;
 	}
 
-	public static function make($instance)
-	{
-		self::initializeContainer();
-		if (is_string($instance)) {
-			// Check if we can make it
-			if (class_exists($instance)) {
-				$instance = self::$container->make($instance);
-			}
-		}
-
-		return new self($instance);
-	}
-
+	/**
+	 * @return mixed
+	 */
 	public function getObject()
 	{
 		return $this->object;
 	}
 
-	protected static function initializeContainer()
+	/**
+	 * @param string $key
+	 * @return bool
+	 */
+	public function __isset($key)
 	{
-		if (self::$container === null) {
-			self::$container = new Container();
-		}
+		return isset($this->object->$key);
 	}
 
+	/**
+	 * @param string $key
+	 * @return mixed
+	 */
+	public function __get($key)
+	{
+		return $this->object->$key;
+	}
+
+	/**
+	 * @param string $key
+	 * @param mixed $value
+	 */
+	public function __set($key, $value)
+	{
+		$this->object->$key = $value;
+	}
+
+	/**
+	 * @param string $key
+	 */
+	public function __unset($key)
+	{
+		unset($this->object->$key);
+	}
+
+	/**
+	 * @param string $method
+	 * @param array $arguments
+	 * @return $this|\Ditto\Ditto
+	 */
 	public function __call($method, array $arguments = [])
 	{
 		if (strpos($method, 'should') !== 0) {
-			$result = call_user_func_array(array($this->object, $method), $arguments);
-			return new self($result);
+			$result = call_user_func_array([$this->object, $method], $arguments);
+			return static::capsulate($result);
 		}
 
 		if (array_key_exists($method, $this->test_keywords)) {
@@ -63,47 +110,93 @@ class Ditto
 		} else if (strpos($method, 'shouldBe') === 0) {
 			$method = 'is'.substr($method, strlen('shouldBe'));
 			// TODO: Check if method exists
-			\PHPUnit_Framework_Assert::assertTrue($this->object->$method());
+			Assert::assertTrue($this->object->$method());
 		} else if (strpos($method, 'shouldHave') === 0) {
 			$method = 'has'.substr($method, strlen('shouldHave'));
 			// TODO: Check if method exists
-			\PHPUnit_Framework_Assert::assertTrue($this->object->$method());
+			Assert::assertTrue($this->object->$method());
 		}
 
 		return $this;
 	}
 
-	public function __get($key)
+	/**
+	 * @param array $arguments
+	 */
+	protected function assertSame(array $arguments)
 	{
-		// TODO: Check if property exists
-		return $this->object->$key;
+		Assert::assertSame($this->decapsulate($arguments[0]), $this->decapsulate($this->object));
 	}
 
-	public function __set($key, $value)
+	/**
+	 * @param array $arguments
+	 */
+	protected function assertEquals(array $arguments)
 	{
-		$this->object->$key = $value;
+		Assert::assertEquals($this->decapsulate($arguments[0]), $this->decapsulate($this->object));
 	}
 
-	protected function decapsulate($object)
+	/**
+	 * @param array $arguments
+	 */
+	protected function assertInstanceOf(array $arguments)
 	{
-		if ($object instanceof self) {
-			return $this->decapsulate($object->object);
+		Assert::assertInstanceOf($this->decapsulate($arguments[0]), $this->decapsulate($this->object));
+	}
+
+	/**
+	 * @param string|object $instance
+	 * @return \Ditto\Ditto
+	 */
+	public static function make($instance)
+	{
+		// Check if we can make it
+		if (is_string($instance) && class_exists($instance)) {
+			$instance = static::getContainer()->make($instance);
 		}
-		return $object;
+
+		return static::capsulate($instance);
 	}
 
-	protected function assertSame($arguments)
+	/**
+	 * @return \Illuminate\Container\Container
+	 */
+	protected static function getContainer()
 	{
-		\PHPUnit_Framework_Assert::assertSame($this->decapsulate($arguments[0]), $this->decapsulate($this->object));
+		if (static::$container === null) {
+			static::$container = static::makeContainer();
+		}
+
+		return static::$container;
 	}
 
-	protected function assertEquals($arguments)
+	/**
+	 * @return \Illuminate\Container\Container
+	 */
+	protected static function makeContainer()
 	{
-		\PHPUnit_Framework_Assert::assertEquals($this->decapsulate($arguments[0]), $this->decapsulate($this->object));
+		return new Container();
 	}
 
-	protected function assertInstanceOf($arguments)
+	/**
+	 * @param mixed $object
+	 * @return \Ditto\Ditto
+	 */
+	protected static function capsulate($object)
 	{
-		\PHPUnit_Framework_Assert::assertInstanceOf($this->decapsulate($arguments[0]), $this->decapsulate($this->object));
+		return new static($object);
+	}
+
+	/**
+	 * @param mixed $object
+	 * @return mixed
+	 */
+	protected static function decapsulate($object)
+	{
+		if (! $object instanceof self) {
+			return $object;
+		}
+
+		return static::decapsulate($object->getObject());
 	}
 }
