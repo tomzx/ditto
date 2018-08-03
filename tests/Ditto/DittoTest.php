@@ -1,33 +1,39 @@
 <?php namespace Ditto\Test;
 
 use Ditto\Ditto as d;
+use Ditto\Ditto;
+use Ditto\Test\Fixtures\Classes\A;
+use Ditto\Test\Fixtures\Classes\B;
+use Ditto\Test\Fixtures\Classes\C;
+use PHPUnit\Framework\TestCase;
+use stdClass;
 
-class DittoTest extends \PHPUnit_Framework_TestCase {
+class DittoTest extends TestCase {
 	public function testItIsInitializable()
 	{
-		$this->assertInstanceOf('Ditto\Ditto', d::make('stdClass'));
+		$this->assertInstanceOf(Ditto::class, d::make(stdClass::class));
 	}
 
 	public function testItCanInstantiateArgumentlessClasses()
 	{
-		$this->assertInstanceOf('Ditto\Ditto', d::make('Ditto\Test\Fixtures\Classes\A'));
+		$this->assertInstanceOf(Ditto::class, d::make(A::class));
 	}
 
 	public function testItCanInstantiateClassesWithArguments()
 	{
-		$ditto = d::make('Ditto\Test\Fixtures\Classes\C');
-		$this->assertInstanceOf('Ditto\Ditto', $ditto);
-		$this->assertInstanceOf('Ditto\Test\Fixtures\Classes\A', $ditto->a);
-		$this->assertInstanceOf('Ditto\Test\Fixtures\Classes\B', $ditto->b);
-		$this->assertInstanceOf('Ditto\Test\Fixtures\Classes\A', $ditto->b->a);
+		$ditto = d::make(C::class);
+		$this->assertInstanceOf(Ditto::class, $ditto);
+		$this->assertInstanceOf(A::class, $ditto->a);
+		$this->assertInstanceOf(B::class, $ditto->b);
+		$this->assertInstanceOf(A::class, $ditto->b->a);
 	}
 
 	public function testItCanSetValuesOnObject()
 	{
-		$ditto = d::make('Ditto\Test\Fixtures\Classes\C');
-		$this->assertInstanceOf('Ditto\Test\Fixtures\Classes\A', $ditto->a);
+		$ditto = d::make(C::class);
+		$this->assertInstanceOf(A::class, $ditto->a);
 		$ditto->a = 'test';
-		$this->assertNotInstanceOf('Ditto\Test\Fixtures\Classes\A', $ditto->a);
+		$this->assertNotInstanceOf(A::class, $ditto->a);
 	}
 
 	public function testItWorksOnIntrinsicValues()
@@ -41,19 +47,19 @@ class DittoTest extends \PHPUnit_Framework_TestCase {
 
 	public function testItTestisXMethodsWhenShouldBeIsCalled()
 	{
-		$ditto = d::make('Ditto\Test\Fixtures\Classes\A');
+		$ditto = d::make(A::class);
 		$ditto->shouldBeAwesome();
 	}
 
 	public function testItTesthasXMethodsWhenShouldHaveIsCalled()
 	{
-		$ditto = d::make('Ditto\Test\Fixtures\Classes\A');
+		$ditto = d::make(A::class);
 		$ditto->shouldHaveJabberwocky();
 	}
 
 	public function testItShouldAssertSame()
 	{
-		$ditto = d::make('Ditto\Test\Fixtures\Classes\A');
+		$ditto = d::make(A::class);
 		$ditto->a()->shouldReturn('a');
 		$ditto->a()->shouldBe('a');
 		$ditto->a()->shouldEqual('a');
@@ -62,14 +68,14 @@ class DittoTest extends \PHPUnit_Framework_TestCase {
 
 	public function testItShouldAssertEquals()
 	{
-		$ditto = d::make('Ditto\Test\Fixtures\Classes\A');
+		$ditto = d::make(A::class);
 		$ditto->a()->shouldBeLike('a');
 	}
 
 	public function testItShouldAssertInstanceOf()
 	{
-		$ditto = d::make('Ditto\Test\Fixtures\Classes\B');
-		$ditto->a()->shouldHaveType('Ditto\Test\Fixtures\Classes\A');
+		$ditto = d::make(B::class);
+		$ditto->a()->shouldHaveType(A::class);
 	}
 
 	public function testItShouldDecapsulateArgumentsIfTheyAreDittoObjects()
@@ -78,8 +84,8 @@ class DittoTest extends \PHPUnit_Framework_TestCase {
 		$ditto_a = d::make($a);
 		$ditto_b = d::make($ditto_a);
 
-		$this->assertInstanceOf('Ditto\Ditto', $ditto_a);
-		$this->assertInstanceOf('Ditto\Ditto', $ditto_b);
+		$this->assertInstanceOf(Ditto::class, $ditto_a);
+		$this->assertInstanceOf(Ditto::class, $ditto_b);
 		$this->assertSame($a, $ditto_a->getObject());
 		$this->assertSame($ditto_a, $ditto_b->getObject());
 		$ditto_a->getThis()->shouldReturn($a);
